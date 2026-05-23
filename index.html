@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام فواتير المستشفى</title>
+<style>
+    body {
+        font-family: 'Tahoma', Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #34495e;
+        font-weight: bold;
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+    button {
+        background: #3498db;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        margin-top: 20px;
+    }
+    button:hover {
+        background: #2980b9;
+    }
+    .bill {
+        margin-top: 30px;
+        padding: 20px;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        display: none;
+    }
+    .bill h2 {
+        text-align: center;
+        color: #2c3e50;
+    }
+    .bill-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .total {
+        font-size: 20px;
+        font-weight: bold;
+        color: #e74c3c;
+        text-align: center;
+        margin-top: 20px;
+    }
+    @media print {
+        button, form { display: none; }
+        .bill { display: block !important; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>نظام فواتير المستشفى</h1>
+    
+    <form id="billForm">
+        <div class="form-group">
+            <label>اسم المريض:</label>
+            <input type="text" id="patientName" required>
+        </div>
+        
+        <div class="form-group">
+            <label>نوع الخدمة:</label>
+            <select id="service" required>
+                <option value="">اختر الخدمة</option>
+                <option value="100">كشف عادي - 100 جنيه</option>
+                <option value="250">كشف استشاري - 250 جنيه</option>
+                <option value="500">أشعة - 500 جنيه</option>
+                <option value="800">تحاليل شاملة - 800 جنيه</option>
+                <option value="1500">عملية صغرى - 1500 جنيه</option>
+                <option value="5000">عملية كبرى - 5000 جنيه</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>عدد الأيام في المستشفى:</label>
+            <input type="number" id="days" value="0" min="0">
+        </div>
+        
+        <div class="form-group">
+            <label>سعر اليوم:</label>
+            <input type="number" id="dayPrice" value="200" min="0">
+        </div>
+        
+        <button type="submit">حساب الفاتورة</button>
+    </form>
+
+    <div class="bill" id="billResult">
+        <h2>الفاتورة</h2>
+        <div id="billDetails"></div>
+        <div class="total" id="totalAmount"></div>
+        <button onclick="window.print()">طباعة الفاتورة</button>
+    </div>
+</div>
+
+<script>
+document.getElementById('billForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('patientName').value;
+    const servicePrice = parseFloat(document.getElementById('service').value);
+    const days = parseFloat(document.getElementById('days').value);
+    const dayPrice = parseFloat(document.getElementById('dayPrice').value);
+    
+    const hospitalStay = days * dayPrice;
+    const total = servicePrice + hospitalStay;
+    
+    const serviceText = document.getElementById('service').options[document.getElementById('service').selectedIndex].text;
+    
+    let details = `
+        <div class="bill-item">
+            <span>اسم المريض:</span>
+            <span>${name}</span>
+        </div>
+        <div class="bill-item">
+            <span>الخدمة:</span>
+            <span>${serviceText}</span>
+        </div>
+    `;
+    
+    if (days > 0) {
+        details += `
+        <div class="bill-item">
+            <span>الإقامة: ${days} يوم × ${dayPrice} جنيه</span>
+            <span>${hospitalStay} جنيه</span>
+        </div>
+        `;
+    }
+    
+    document.getElementById('billDetails').innerHTML = details;
+    document.getElementById('totalAmount').innerHTML = `الإجمالي: ${total} جنيه`;
+    document.getElementById('billResult').style.display = 'block';
+});
+</script>
+</body>
+</html>
